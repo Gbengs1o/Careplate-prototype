@@ -23,25 +23,52 @@ const CUISINE_PLANS = {
     'Nigerian': {
         'Diabetes': [
             { day: 'Mon', date: 16, meals: [
-                { type: 'Breakfast', name: 'Baked Moin Moin & Oat Swallow', img: 'assets/moin_moin.png', macros: '310 kcal | 18g P | 35g C', ingredients: ['Beans', 'Oats', 'Pepper'] },
-                { type: 'Lunch', name: 'Grilled Croaker & Steamed Veggies', img: 'assets/fish_veggies.png', macros: '380 kcal | 42g P | 12g C', ingredients: ['Croaker', 'Spinach', 'Onions'] },
-                { type: 'Dinner', name: 'Okra Soup with Turkey Breast', icon: '🥣', macros: '340 kcal | 35g P | 15g C', ingredients: ['Okra', 'Turkey', 'Palm oil (minimal)'] }
+                { type: 'Breakfast', name: 'Baked Moin Moin & Oat Swallow', img: 'assets/moin_moin.png', macros: { kcal: 310, protein: 18, carbs: 35, fats: 8 }, ingredients: ['Beans', 'Oats', 'Pepper'] },
+                { type: 'Lunch', name: 'Grilled Croaker & Steamed Veggies', img: 'assets/fish_veggies.png', macros: { kcal: 380, protein: 42, carbs: 12, fats: 13 }, ingredients: ['Croaker', 'Spinach', 'Onions'] },
+                { type: 'Dinner', name: 'Okra Soup with Turkey Breast', img: 'assets/lentil_soup.png', macros: { kcal: 340, protein: 35, carbs: 15, fats: 11 }, ingredients: ['Okra', 'Turkey', 'Palm oil (minimal)'] }
             ]},
             { day: 'Tue', date: 17, meals: [
-                { type: 'Breakfast', name: 'Akara (Air Fried) & Unsweetened Pap', icon: '🍘', macros: '290 kcal | 15g P | 40g C', ingredients: ['Beans', 'Corn', 'Ginger'] },
-                { type: 'Lunch', name: 'Ofada Rice & Stir-fry Beef', icon: '🥘', macros: '420 kcal | 28g P | 45g C', ingredients: ['Ofada Rice', 'Beef', 'Bells peppers'] },
-                { type: 'Dinner', name: 'Pepper Soup with Tilapia', icon: '🌶️', macros: '250 kcal | 30g P | 8g C', ingredients: ['Tilapia', 'Pepper soup spices', 'Scent leaf'] }
+                { type: 'Breakfast', name: 'Akara (Air Fried) & Unsweetened Pap', img: 'assets/akara.png', macros: { kcal: 290, protein: 15, carbs: 40, fats: 7 }, ingredients: ['Beans', 'Corn', 'Ginger'] },
+                { type: 'Lunch', name: 'Ofada Rice & Stir-fry Beef', img: 'assets/ofada_rice.png', macros: { kcal: 420, protein: 28, carbs: 45, fats: 14 }, ingredients: ['Ofada Rice', 'Beef', 'Bells peppers'] },
+                { type: 'Dinner', name: 'Pepper Soup with Tilapia', img: 'assets/pepper_soup.png', macros: { kcal: 250, protein: 30, carbs: 8, fats: 8 }, ingredients: ['Tilapia', 'Pepper soup spices', 'Scent leaf'] }
             ]},
         ]
     },
     'South Asian': {
        'Diabetes': [
             { day: 'Mon', date: 16, meals: [
-                { type: 'Breakfast', name: 'Moong Dal Chilla', icon: '🥞', macros: '280 kcal | 14g P | 35g C', ingredients: ['Moong dal', 'Green chili', 'Cumin'] },
-                { type: 'Lunch', name: 'Cauliflower Rice & Paneer Bhurji', icon: '🍚', macros: '350 kcal | 18g P | 12g C', ingredients: ['Cauliflower', 'Paneer', 'Turmeric'] },
-                { type: 'Dinner', name: 'Lentil Soup (Tadka Dal)', img: 'assets/lentil_soup.png', macros: '310 kcal | 15g P | 45g C', ingredients: ['Red lentils', 'Garlic', 'Mustard seeds'] }
+                { type: 'Breakfast', name: 'Moong Dal Chilla', img: 'assets/moong_chilla.png', macros: { kcal: 280, protein: 14, carbs: 35, fats: 8 }, ingredients: ['Moong dal', 'Green chili', 'Cumin'] },
+                { type: 'Lunch', name: 'Cauliflower Rice & Paneer Bhurji', icon: '🍚', macros: { kcal: 350, protein: 18, carbs: 12, fats: 18 }, ingredients: ['Cauliflower', 'Paneer', 'Turmeric'] },
+                { type: 'Dinner', name: 'Lentil Soup (Tadka Dal)', icon: '🥣', macros: { kcal: 310, protein: 15, carbs: 45, fats: 7 }, ingredients: ['Red lentils', 'Garlic', 'Mustard seeds'] }
             ]}
        ]
+    },
+    'Mediterranean': {
+        'Diabetes': [
+            { day: 'Mon', date: 16, meals: [
+                { type: 'Breakfast', name: 'Greek Yogurt with Walnuts & Berries', img: 'assets/greek_yogurt.png', macros: { kcal: 250, protein: 15, carbs: 20, fats: 12 }, ingredients: ['Greek Yogurt', 'Walnuts', 'Blueberries'] },
+                { type: 'Lunch', name: 'Grilled Chicken Souvlaki & Greek Salad', img: 'assets/chicken_souvlaki.png', macros: { kcal: 380, protein: 35, carbs: 15, fats: 18 }, ingredients: ['Chicken Breast', 'Cucumber', 'Feta Cheese', 'Olive Oil'] },
+                { type: 'Dinner', name: 'Baked Salmon with Roasted Asparagus', img: 'assets/baked_salmon.png', macros: { kcal: 410, protein: 40, carbs: 10, fats: 22 }, ingredients: ['Salmon', 'Asparagus', 'Lemon', 'Herbs'] }
+            ]}
+        ]
+    },
+    'Mexican': {
+        'Hypertension': [
+            { day: 'Mon', date: 16, meals: [
+                { type: 'Breakfast', name: 'Huevos Rancheros (Low Sodium)', img: 'assets/huevos_rancheros.png', macros: { kcal: 320, protein: 18, carbs: 25, fats: 14 }, ingredients: ['Corn Tortilla', 'Eggs', 'Fresh Salsa', 'Black Beans'] },
+                { type: 'Lunch', name: 'Grilled Shrimp Tacos with Avocado', img: 'assets/shrimp_tacos.png', macros: { kcal: 350, protein: 28, carbs: 30, fats: 16 }, ingredients: ['Shrimp', 'Avocado', 'Cabbage Slaw', 'Lime'] },
+                { type: 'Dinner', name: 'Chicken Fajita Bowl (No Added Salt)', img: 'assets/fajita_bowl.png', macros: { kcal: 390, protein: 32, carbs: 20, fats: 18 }, ingredients: ['Chicken', 'Bell Peppers', 'Onions', 'Cilantro Lime Rice'] }
+            ]}
+        ]
+    },
+    'East Asian': {
+        'Diabetes': [
+            { day: 'Mon', date: 16, meals: [
+                { type: 'Breakfast', name: 'Steamed Egg Custard & Wilted Greens', img: 'assets/egg_custard.png', macros: { kcal: 210, protein: 14, carbs: 8, fats: 12 }, ingredients: ['Eggs', 'Bok Choy', 'Sesame Oil'] },
+                { type: 'Lunch', name: 'Miso Glazed Cod & Steamed Broccoli', img: 'assets/miso_cod.png', macros: { kcal: 340, protein: 30, carbs: 12, fats: 10 }, ingredients: ['Cod', 'Miso Paste (Light)', 'Broccoli', 'Ginger'] },
+                { type: 'Dinner', name: 'Tofu Stir-fry with Shirataki Noodles', img: 'assets/tofu_stir_fry.png', macros: { kcal: 280, protein: 20, carbs: 15, fats: 11 }, ingredients: ['Firm Tofu', 'Shirataki Noodles', 'Mixed Veggies', 'Soy Sauce (Low Sodium)'] }
+            ]}
+        ]
     }
 };
 
@@ -157,6 +184,9 @@ function renderOnboarding() {
                 <select id="ob-cuisine" style="font-size: 18px; font-weight: 600; padding: 12px 0; width: 100%; appearance: none">
                     <option value="Nigerian">West African (Nigerian)</option>
                     <option value="South Asian">South Asian</option>
+                    <option value="Mediterranean">Mediterranean</option>
+                    <option value="Mexican">Mexican</option>
+                    <option value="East Asian">East Asian</option>
                 </select>
             </div>
             
@@ -195,7 +225,7 @@ function renderDashboard() {
                         <h2 style="font-size: 28px; margin-top: 4px">${lunch.name}</h2>
                         <div style="display: flex; gap: 12px; margin-top: 12px; opacity: 0.9; font-size: 13px">
                             <span>🕒 1:00 PM</span>
-                            <span>🔥 ${lunch.macros.split('|')[0]}</span>
+                            <span>🔥 ${lunch.macros.kcal} kcal</span>
                         </div>
                     </div>
                 </div>
@@ -295,7 +325,7 @@ function renderPlanner() {
                                 <span class="label-xs" style="color: var(--primary); opacity: 0.5">${m.type}</span>
                                 <h4 style="font-size: 18px; margin: 4px 0">${m.name}</h4>
                                 <div style="display: flex; font-size: 11px; opacity: 0.4; font-weight: 700; gap: 8px">
-                                    <span>${m.macros}</span>
+                                    <span>${m.macros.kcal} kcal | ${m.macros.protein}g P | ${m.macros.carbs}g C</span>
                                 </div>
                             </div>
                             <div style="opacity: 0.2">
@@ -478,27 +508,28 @@ function showMealDetails(mealName) {
         if (found) meal = found;
     });
 
-    const modal = document.createElement('div');
-    modal.className = 'modal-overlay';
-    modal.style.cssText = "position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2000; display:flex; align-items:flex-end";
-    modal.innerHTML = `
-        <div class="modal-sheet" style="background:white; width:100%; border-radius:40px 40px 0 0; padding:40px 24px; animation:slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1)">
-            <div style="width:40px; height:4px; background:#ddd; border-radius:2px; margin:0 auto 24px"></div>
+    const mealModal = document.getElementById('mealModal');
+    mealModal.innerHTML = `
+        <div class="modal-sheet">
+            <div style="width:40px; height:4px; background:rgba(0,0,0,0.1); border-radius:2px; margin:0 auto 24px"></div>
+            
+            ${meal.img ? `<img src="${meal.img}" class="modal-meal-img" alt="Meal">` : ''}
+
             <span class="label-xs" style="color:var(--primary)">Detailed Nutrition</span>
-            <h2 style="font-size:32px; margin:8px 0">${mealName}</h2>
+            <h2 style="font-size:32px; margin:8px 0">${meal.name}</h2>
             <p style="opacity:0.6; font-size:14px; margin-bottom:32px">Verified clinical breakdown for your ${userState.medicalProfile.condition} plan.</p>
             
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin-bottom:32px">
-                <div style="background:#f8f9f8; padding:20px; border-radius:24px; text-align:center">
-                    <div style="font-weight:800; font-size:18px; color:var(--primary)">24g</div>
+                <div style="background:rgba(27,60,53,0.05); padding:20px; border-radius:24px; text-align:center">
+                    <div style="font-weight:800; font-size:18px; color:var(--primary)">${meal.macros.protein}g</div>
                     <div class="label-xs" style="font-size:9px">Protein</div>
                 </div>
-                <div style="background:#f8f9f8; padding:20px; border-radius:24px; text-align:center">
-                    <div style="font-weight:800; font-size:18px; color:var(--accent-gold)">12g</div>
+                <div style="background:rgba(212,175,55,0.05); padding:20px; border-radius:24px; text-align:center">
+                    <div style="font-weight:800; font-size:18px; color:var(--accent-gold)">${meal.macros.carbs}g</div>
                     <div class="label-xs" style="font-size:9px">Carbs</div>
                 </div>
-                <div style="background:#f8f9f8; padding:20px; border-radius:24px; text-align:center">
-                    <div style="font-weight:800; font-size:18px; color:#8E918F">8g</div>
+                <div style="background:rgba(142,145,143,0.05); padding:20px; border-radius:24px; text-align:center">
+                    <div style="font-weight:800; font-size:18px; color:#8E918F">${meal.macros.fats}g</div>
                     <div class="label-xs" style="font-size:9px">Fats</div>
                 </div>
             </div>
@@ -508,15 +539,20 @@ function showMealDetails(mealName) {
                 ${(meal.ingredients || []).map(ing => `<span style="background:rgba(27,60,53,0.05); padding:8px 16px; border-radius:100px; font-size:13px; font-weight:600">${ing}</span>`).join('')}
             </div>
 
-            <button class="btn btn-primary" style="margin-top:40px; background:var(--primary); color:white; border:none; padding:20px; border-radius:24px; width:100%; font-weight:800; font-size:16px" onclick="this.closest('.modal-overlay').remove()">Dismiss</button>
+            <button class="primary-btn" onclick="closeMealModal()">Dismiss</button>
         </div>
-        <style>
-            @keyframes slideUp { from { transform: translateY(100%); opacity:0; } to { transform: translateY(0); opacity:1; } }
-        </style>
     `;
-    modal.addEventListener('click', (e) => { if(e.target === modal) modal.remove(); });
-    document.body.appendChild(modal);
+    mealModal.classList.add('show');
 }
+
+function closeMealModal() {
+    document.getElementById('mealModal').classList.remove('show');
+}
+
+// Add event listener for clicking outside the modal
+document.getElementById('mealModal').addEventListener('click', (e) => {
+    if (e.target.id === 'mealModal') closeMealModal();
+});
 
 function renderProfile() {
     return `
