@@ -1134,9 +1134,15 @@
             gap: 4px;
         }
 
+        .nav.role-nav {
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 6px;
+            padding: 8px 10px;
+        }
+
         .nav-item {
             height: 48px;
-            border-radius: 50%;
+            border-radius: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1144,12 +1150,21 @@
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
+            min-width: 0;
         }
 
         .nav-item svg {
             width: 22px;
             height: 22px;
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            flex: none;
+        }
+
+        .nav-item span {
+            font-size: 11px;
+            font-weight: 700;
+            line-height: 1;
+            white-space: nowrap;
         }
 
         .nav-item.active {
@@ -1176,6 +1191,32 @@
         .nav-item:not(.active):hover {
             color: rgba(255, 255, 255, 0.6);
             background: rgba(255, 255, 255, 0.05);
+        }
+
+        .role-nav .nav-item {
+            height: 56px;
+            border-radius: 18px;
+            flex-direction: column;
+            gap: 5px;
+            padding: 6px 2px;
+            color: rgba(255, 255, 255, 0.65);
+        }
+
+        .role-nav .nav-item svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .role-nav .nav-item span {
+            font-size: 9px;
+            letter-spacing: 0.01em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+
+        .role-nav .nav-item.active::after {
+            bottom: 5px;
         }
 
         .role-switch {
@@ -1342,7 +1383,8 @@
         }
 
         .input-shell input,
-        .input-shell select {
+        .input-shell select,
+        .input-shell textarea {
             width: 100%;
             border: none;
             outline: none;
@@ -1555,26 +1597,10 @@
 <body>
     <div class="stage">
         <aside class="floating-panel visible-desktop">
-            <div class="panel-title">CarePlate App Guide</div>
-            <div class="panel-sub">A clinical-grade wellness engine designed for personalized, culturally-aware nutrition management.</div>
-            <div class="chip-row">
-                <span class="chip">Mobile-first</span>
-                <span class="chip">Glass UI</span>
-                <span class="chip">Role switching</span>
-                <span class="chip">Meal details</span>
-            </div>
-            <div class="preview-card">
-                <h4>Smart Monitoring</h4>
-                <p>The dashboard tracks real-time adherence, blood sugar trends, and activity. It proactively adapts meal suggestions to help manage glucose stability.</p>
-            </div>
-            <div class="preview-card">
-                <h4>Personalized Plans</h4>
-                <p>Experience medically-tailored meal paths for Nigerian and South Asian diets. Each recipe is balanced to maintain cultural authenticity while meeting clinical goals.</p>
-            </div>
-            <div class="preview-card">
-                <h4>Value-Driven Design</h4>
-                <p>A premium interface optimized for trust and ease of use. Integrated features like the Smart Grocery List and Care Team access ensure a full-circle health journey.</p>
-            </div>
+            <div class="panel-title" id="guideTitle">CarePlate App Guide</div>
+            <div class="panel-sub" id="guideSub">A clinical-grade wellness engine designed for personalized, culturally-aware nutrition management.</div>
+            <div class="chip-row" id="guideChips"></div>
+            <div id="guideCards"></div>
         </aside>
 
         <div class="device-shell">
@@ -1607,19 +1633,50 @@
             onboardingMode: false,
             selectedDay: 0,
             plannerView: 'meals',
+            specialistScreen: 'dashboard',
+            adminScreen: 'overview',
             groceryChecked: {},
             medicalProfile: {
                 condition: 'Diabetes',
                 medications: ['Metformin'],
                 cuisine: 'Nigerian',
                 allergies: []
-            }
+            },
+            specialistProfile: {
+                name: 'Dr. Sarah Cole',
+                specialties: ['Diabetes', 'Hypertension'],
+                availability: 'Mon-Fri, 9:00 AM-4:00 PM',
+                responseTarget: '<2 hours',
+                credentials: 'RD, CDCES',
+                consults: 14,
+                clients: 38,
+                planEdits: 9,
+                note: 'Prioritize sodium-sensitive cases this week.',
+                highlight: 'Lower sodium dinner swap proposed for Ella B.'
+            },
+            specialistClients: [
+                { id: 'ella', name: 'Ella B.', summary: 'Type 2 diabetes · Nigerian cuisine path · 92% adherence', risk: 'Elevated sodium trend', plan: 'Switch one dinner side to steamed greens', nextStep: 'Send recommendation and review by 4 PM' },
+                { id: 'farah', name: 'Farah K.', summary: 'Hypertension · South Asian meals · requested sodium review', risk: 'Blood pressure spikes after dinner', plan: 'Reduce sodium in curry base and add yogurt side', nextStep: 'Book 15-minute consult' },
+                { id: 'daniel', name: 'Daniel O.', summary: 'Weight management · awaiting first consultation booking', risk: 'Low onboarding completion', plan: 'Simplify first-week meal plan and motivate adherence', nextStep: 'Confirm availability tomorrow morning' }
+            ],
+            specialistActivity: [
+                { time: '09:00', task: 'Review new consultation requests and triage urgency' },
+                { time: '11:15', task: 'Approve culturally tailored meal swaps for diabetic users' },
+                { time: '14:30', task: 'Reply to patient chat threads and document care notes' },
+                { time: '16:00', task: 'Prepare tomorrow\'s call schedule and follow-ups' }
+            ],
+            specialistDraftMessage: 'Hi Ella, I reviewed your logs and I recommend replacing tonight\'s side with steamed greens to reduce sodium while keeping the meal familiar.',
+            specialistSelectedClient: 'ella'
         };
 
         const app = document.getElementById('app');
         const bottomNav = document.getElementById('bottomNav');
         const roleSwitch = document.getElementById('roleSwitch');
         const mealModal = document.getElementById('mealModal');
+        const guideTitle = document.getElementById('guideTitle');
+        const guideSub = document.getElementById('guideSub');
+        const guideChips = document.getElementById('guideChips');
+        const guideCards = document.getElementById('guideCards');
 
         const DATA = {
             Nigerian: {
@@ -1954,7 +2011,7 @@
         function renderRoleSwitch() {
             const roles = [
                 { key: 'user', label: 'User' },
-                { key: 'specialist', label: 'Pro' },
+                { key: 'specialist', label: 'Dietitian' },
                 { key: 'admin', label: 'Admin' }
             ];
             roleSwitch.innerHTML = roles.map(role => `
@@ -1963,43 +2020,55 @@
         }
 
         function renderNav() {
-            if (state.onboardingMode || state.role !== 'user') {
-                bottomNav.style.display = state.onboardingMode ? 'none' : 'grid';
-            } else {
-                bottomNav.style.display = 'grid';
-            }
+            bottomNav.style.display = state.onboardingMode ? 'none' : 'grid';
 
             if (state.onboardingMode) {
+                bottomNav.classList.remove('role-nav');
                 bottomNav.innerHTML = '';
                 return;
             }
 
-            if (state.role !== 'user') {
+            if (state.role === 'specialist') {
+                bottomNav.classList.add('role-nav');
+                const items = [
+                    ['dashboard', 'Dashboard', '<path d="M3 13h8V3H3z"></path><path d="M13 21h8v-6h-8z"></path><path d="M13 11h8V3h-8z"></path><path d="M3 21h8v-6H3z"></path>'],
+                    ['clients', 'Clients', '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>'],
+                    ['consults', 'Consults', '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>'],
+                    ['schedule', 'Schedule', '<rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>'],
+                    ['profile', 'Profile', '<circle cx="12" cy="8" r="4"></circle><path d="M6 20c1.7-3 4-4.5 6-4.5s4.3 1.5 6 4.5"></path>']
+                ];
                 bottomNav.innerHTML = `
-          <div class="nav-item active" onclick="switchRole('user')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-            <span>Back</span>
-          </div>
-          <div class="nav-item" onclick="toggleOnboarding(true)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
-            <span>Flow</span>
-          </div>
-          <div class="nav-item" onclick="navigateTo('home')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"></path><path d="m12 4 8 8-8 8"></path></svg>
-            <span>Focus</span>
-          </div>
-          <div class="nav-item" onclick="switchRole('specialist')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-            <span>Pro</span>
-          </div>
-          <div class="nav-item" onclick="switchRole('admin')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"></path><path d="M3 12h18"></path></svg>
-            <span>Admin</span>
-          </div>
+          ${items.map(([key, label, icon]) => `
+            <div class="nav-item ${state.specialistScreen === key ? 'active' : ''}" onclick="navigateRoleScreen('specialist', '${key}')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${icon}</svg>
+              <span>${label}</span>
+            </div>
+          `).join('')}
         `;
                 return;
             }
 
+            if (state.role === 'admin') {
+                bottomNav.classList.add('role-nav');
+                const items = [
+                    ['overview', 'Overview', '<path d="M3 3h7v7H3z"></path><path d="M14 3h7v4h-7z"></path><path d="M14 12h7v9h-7z"></path><path d="M3 14h7v7H3z"></path>'],
+                    ['users', 'Users', '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle>'],
+                    ['specialists', 'Specialists', '<path d="M12 2v6"></path><path d="M9 5h6"></path><path d="M8 13a4 4 0 1 1 8 0"></path><path d="M6 21v-2a6 6 0 0 1 12 0v2"></path>'],
+                    ['content', 'Content', '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>'],
+                    ['settings', 'Settings', '<circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 8a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 8 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 8c.36.36.58.86.6 1.4H20a2 2 0 1 1 0 4h-.09c-.02.54-.24 1.04-.51 1.6z"></path>']
+                ];
+                bottomNav.innerHTML = `
+          ${items.map(([key, label, icon]) => `
+            <div class="nav-item ${state.adminScreen === key ? 'active' : ''}" onclick="navigateRoleScreen('admin', '${key}')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${icon}</svg>
+              <span>${label}</span>
+            </div>
+          `).join('')}
+        `;
+                return;
+            }
+
+            bottomNav.classList.remove('role-nav');
             const items = [
                 ['home', 'Home', '<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline>'],
                 ['planner', 'Plan', '<rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>'],
@@ -2084,6 +2153,15 @@
                 <div class="tile-sub">This timing may help reduce your post-meal glucose spike today.</div>
               </div>
               <button class="soft-btn" onclick="navigateTo('specialists')">Message care team</button>
+            </div>
+
+            <div class="tile col-4 interactive" onclick="switchRole('specialist')" style="display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; background: linear-gradient(135deg, rgba(27,60,53,0.96), rgba(40,88,78,0.92)); color: white;">
+              <div>
+                <div class="tile-label" style="color: rgba(255,255,255,0.56);">Professional preview</div>
+                <div style="font-family:'Outfit',sans-serif; font-size: 22px; letter-spacing: -.04em;">Registering as a dietitian?</div>
+                <div class="tile-sub" style="color: rgba(255,255,255,0.78);">Open the dietitian app view to see consultations, client management, and credential workflow.</div>
+              </div>
+              <button class="ghost-btn" onclick="event.stopPropagation(); switchRole('specialist')">View app</button>
             </div>
           </section>
 
@@ -2267,7 +2345,7 @@
                 <h1>Your care team.</h1>
                 <p>When the AI plan needs a human layer, these are the professionals shaping the final experience around you.</p>
               </div>
-              <button class="ghost-btn" onclick="switchRole('specialist')">Pro portal</button>
+              <button class="ghost-btn" onclick="switchRole('specialist')">Dietitian app</button>
             </div>
           </section>
 
@@ -2362,37 +2440,66 @@
             return `
         <div class="screen">
           <section class="portal-head pro">
-            <div class="eyebrow" style="color: rgba(255,255,255,0.56);">Professional portal</div>
-            <h1 style="font-size: 34px; line-height: .95;">Patient management.</h1>
-            <p style="margin-top: 10px; color: rgba(255,255,255,0.76); font-size: 14px; line-height: 1.5;">Monitor adherence, review risk flags, and tune culturally sensitive plans with more confidence.</p>
+            <div class="eyebrow" style="color: rgba(255,255,255,0.56);">Dietitian workspace</div>
+            <h1 style="font-size: 34px; line-height: .95;">Consult, manage, adjust.</h1>
+            <p style="margin-top: 10px; color: rgba(255,255,255,0.76); font-size: 14px; line-height: 1.5;">This shows what CarePlate looks like when a user registers as a dietitian and is approved to manage clients, consultations, and personalized meal updates.</p>
           </section>
 
           <div class="portal-grid">
             <div class="panel-card col-2">
-              <div class="tile-label">Active patients</div>
-              <div class="tile-value">128</div>
-              <div class="tile-sub">+11 this month</div>
+              <div class="tile-label">Verification</div>
+              <div class="tile-value" style="color: var(--success);">Approved</div>
+              <div class="tile-sub">Credentials and license checked by admin</div>
             </div>
             <div class="panel-card col-2">
-              <div class="tile-label">Priority reviews</div>
-              <div class="tile-value" style="color: var(--danger);">6</div>
-              <div class="tile-sub">2 high risk</div>
+              <div class="tile-label">Pending consults</div>
+              <div class="tile-value">14</div>
+              <div class="tile-sub">5 requests need action soon</div>
             </div>
             <div class="panel-card col-4">
-              <div class="tile-label">Case needing attention</div>
-              <h3 style="font-size: 25px;">Ella B. — elevated sodium pattern</h3>
-              <p class="tile-sub">Three meal logs suggest increasing sodium load. Recommend switching one dinner this week and confirming hydration consistency.</p>
+              <div class="tile-label">Registration snapshot</div>
+              <h3 style="font-size: 25px;">A newly approved dietitian starts here.</h3>
+              <p class="tile-sub">They complete their profile, add specialties like diabetes or hypertension, set availability, and begin taking patient consultations inside CarePlate.</p>
               <div style="display:flex; gap:10px; margin-top:14px;">
-                <button class="soft-btn">Review chart</button>
-                <button class="soft-btn">Send recommendation</button>
+                <button class="soft-btn">Edit profile</button>
+                <button class="soft-btn">Set availability</button>
+              </div>
+            </div>
+            <div class="panel-card col-2">
+              <div class="tile-label">Active clients</div>
+              <div class="tile-value">38</div>
+              <div class="tile-sub">Across diabetes, BP, and weight programs</div>
+            </div>
+            <div class="panel-card col-2">
+              <div class="tile-label">Plan edits today</div>
+              <div class="tile-value">9</div>
+              <div class="tile-sub">Meal swaps and recommendation updates sent</div>
+            </div>
+            <div class="panel-card col-4">
+              <div class="tile-label">Today's workflow</div>
+              <div class="stack">
+                <div class="list-row"><strong>09:00</strong><span class="tile-sub">Review new consultation requests and triage urgency</span></div>
+                <div class="list-row"><strong>11:15</strong><span class="tile-sub">Approve culturally tailored meal swaps for diabetic users</span></div>
+                <div class="list-row"><strong>14:30</strong><span class="tile-sub">Reply to patient chat threads and document care notes</span></div>
+                <div class="list-row"><strong>16:00</strong><span class="tile-sub">Prepare tomorrow's call schedule and follow-ups</span></div>
               </div>
             </div>
             <div class="panel-card col-4">
-              <div class="tile-label">Clinician workflow</div>
+              <div class="tile-label">Case needing attention</div>
+              <h3 style="font-size: 25px;">Ella B. - elevated sodium pattern</h3>
+              <p class="tile-sub">Three meal logs suggest increasing sodium load. The dietitian can review the chart, message the patient, and publish an updated dinner plan with a lighter side.</p>
+              <div style="display:flex; gap:10px; margin-top:14px;">
+                <button class="soft-btn">Open chart</button>
+                <button class="soft-btn">Send recommendation</button>
+                <button class="soft-btn">Adjust meal plan</button>
+              </div>
+            </div>
+            <div class="panel-card col-4">
+              <div class="tile-label">Assigned clients</div>
               <div class="stack">
-                <div class="list-row"><strong>09:00</strong><span class="tile-sub">Review flagged meals from glucose deviations</span></div>
-                <div class="list-row"><strong>11:15</strong><span class="tile-sub">Approve localized meal swap suggestions</span></div>
-                <div class="list-row"><strong>14:30</strong><span class="tile-sub">Reply to coaching messages</span></div>
+                <div class="list-row"><strong>Ella B.</strong><span class="tile-sub">Type 2 diabetes · Nigerian cuisine path · 92% adherence</span></div>
+                <div class="list-row"><strong>Farah K.</strong><span class="tile-sub">Hypertension · South Asian meals · requested sodium review</span></div>
+                <div class="list-row"><strong>Daniel O.</strong><span class="tile-sub">Weight management · awaiting first consultation booking</span></div>
               </div>
             </div>
           </div>
@@ -2400,8 +2507,382 @@
       `;
         }
 
+        function getGuideContent() {
+            if (state.role === 'specialist') {
+                const screens = {
+                    dashboard: {
+                        title: 'Dietitian App Guide',
+                        sub: 'This is the professional workspace for managing clients, consultations, meal-plan changes, and practice availability.',
+                        chips: ['Dietitian', 'Clients', 'Consults', 'Schedule'],
+                        cards: [
+                            { title: 'Dashboard', text: 'Shows verification status, pending consult volume, client load, and the next clinical actions that need attention.' },
+                            { title: 'Clients', text: 'Lists assigned patients and lets the dietitian open charts, review risks, and track current interventions.' },
+                            { title: 'Consults', text: 'Handles patient questions and recommendation replies so the prototype reflects real care-team communication.' }
+                        ]
+                    },
+                    clients: {
+                        title: 'Dietitian Client View',
+                        sub: 'Use this area to inspect assigned patients, review risk flags, and decide the next nutrition intervention.',
+                        chips: ['Assigned', 'Risk flags', 'Meal edits', 'Follow-up'],
+                        cards: [
+                            { title: 'Assigned Clients', text: 'Every client card should tell the dietitian who the patient is, what program they are on, and what needs attention.' },
+                            { title: 'Clinical Context', text: 'The prototype should make it obvious why a client needs attention, such as sodium patterns, glucose trends, or onboarding drop-off.' },
+                            { title: 'Next Action', text: 'From here the dietitian should be able to open a chart, message the patient, or push a revised plan.' }
+                        ]
+                    },
+                    consults: {
+                        title: 'Dietitian Consult Guide',
+                        sub: 'This area represents in-app consultation handling, where dietitians respond to patient questions and document care recommendations.',
+                        chips: ['Messages', 'Recommendations', 'Response time', 'Notes'],
+                        cards: [
+                            { title: 'Patient Questions', text: 'The dietitian reviews incoming questions and drafts responses that are clinically useful and culturally realistic.' },
+                            { title: 'Recommendation Flow', text: 'Recommendations should update the patient next-step state so the prototype feels like a real operational tool.' },
+                            { title: 'Care Notes', text: 'The app should preserve a quick summary of what was changed and what follow-up is expected.' }
+                        ]
+                    },
+                    schedule: {
+                        title: 'Dietitian Schedule Guide',
+                        sub: 'This view explains when the dietitian is available for consultations and how upcoming follow-ups are organized.',
+                        chips: ['Availability', 'Bookings', 'Hours', 'Follow-ups'],
+                        cards: [
+                            { title: 'Availability Settings', text: 'Dietitians define their consultation hours and response targets so requests can be routed correctly.' },
+                            { title: 'Consultation Queue', text: 'Upcoming consult slots help the provider balance urgent patient needs with planned follow-up sessions.' },
+                            { title: 'Operational Clarity', text: 'A real provider app needs to answer who I am seeing next and what I need to prepare.' }
+                        ]
+                    },
+                    profile: {
+                        title: 'Dietitian Profile Guide',
+                        sub: 'This section explains the professional identity the dietitian presents inside CarePlate.',
+                        chips: ['Credentials', 'Specialties', 'Availability', 'Practice'],
+                        cards: [
+                            { title: 'Credentials', text: 'The prototype should show what was approved by admin, not just a generic badge.' },
+                            { title: 'Specialties', text: 'Specialties such as diabetes or hypertension help match patients to the right professional.' },
+                            { title: 'Practice Setup', text: 'Availability, response time, and profile details all contribute to the real provider workflow.' }
+                        ]
+                    }
+                };
+                return screens[state.specialistScreen] || screens.dashboard;
+            }
+
+            if (state.role === 'admin') {
+                const screens = {
+                    overview: {
+                        title: 'Admin App Guide',
+                        sub: 'This is the control layer for platform operations, role approvals, content quality, and growth monitoring.',
+                        chips: ['Admin', 'Operations', 'Approvals', 'Analytics'],
+                        cards: [
+                            { title: 'Overview', text: 'The admin landing screen summarizes users, specialists, retention, and revenue movement.' },
+                            { title: 'Platform Control', text: 'Admins oversee service quality and step in when there are issues with accounts, content, or care operations.' },
+                            { title: 'Quality Guardrails', text: 'This side of the prototype should feel operational, not consumer-facing.' }
+                        ]
+                    },
+                    users: {
+                        title: 'User Management Guide',
+                        sub: 'Admins use this area to activate, review, and manage patient accounts.',
+                        chips: ['Users', 'Roles', 'Status', 'Support'],
+                        cards: [
+                            { title: 'Account Control', text: 'Admins can review patient account status, intervene on issues, and enforce access rules.' },
+                            { title: 'Role Oversight', text: 'The platform should make it easy to distinguish patients from dietitians and staff roles.' },
+                            { title: 'Support Resolution', text: 'This prototype view should answer what account needs help and what action is available.' }
+                        ]
+                    },
+                    specialists: {
+                        title: 'Specialist Oversight Guide',
+                        sub: 'This area is for approving dietitians, verifying credentials, and monitoring professional activity.',
+                        chips: ['Approvals', 'Credentials', 'Coverage', 'Performance'],
+                        cards: [
+                            { title: 'Credential Review', text: 'Admins need clear visibility into who is pending, approved, or blocked from practice.' },
+                            { title: 'Regional Coverage', text: 'Professional capacity should be visible by specialty and geography.' },
+                            { title: 'Care Quality', text: 'This part of the prototype should suggest how CarePlate protects service quality.' }
+                        ]
+                    },
+                    content: {
+                        title: 'Content Management Guide',
+                        sub: 'Admins use this area to manage recipes, cuisine logic, and nutrition guidance across the platform.',
+                        chips: ['Recipes', 'Cuisine', 'Templates', 'Rules'],
+                        cards: [
+                            { title: 'Recipe Control', text: 'The admin should be able to curate what meals and food templates are available in the product.' },
+                            { title: 'Cultural Coverage', text: 'Cuisine support is a product-quality issue, so this view should connect directly to local food relevance.' },
+                            { title: 'Nutrition Rules', text: 'Admin content work should support the downstream meal-planning logic used in the user app.' }
+                        ]
+                    },
+                    settings: {
+                        title: 'Platform Settings Guide',
+                        sub: 'This section is where platform-level rules, notifications, and operational policies would live.',
+                        chips: ['Policies', 'Alerts', 'Integrations', 'Config'],
+                        cards: [
+                            { title: 'Policy Controls', text: 'Admins need a place to configure system behavior without touching product content directly.' },
+                            { title: 'Operational Alerts', text: 'Settings should connect to events such as high-risk cases, API issues, or unusual account activity.' },
+                            { title: 'Scalability', text: 'The prototype should communicate that the platform can be managed as it grows.' }
+                        ]
+                    }
+                };
+                return screens[state.adminScreen] || screens.overview;
+            }
+
+            const screens = {
+                home: {
+                    title: 'User App Guide',
+                    sub: 'This is the patient experience: meal planning, care support, grocery execution, and health guidance in one flow.',
+                    chips: ['User', 'Meals', 'Care team', 'Tracking'],
+                    cards: [
+                        { title: 'Home Dashboard', text: 'Shows the patient what matters right now: the next meal, health signals, and today’s priority actions.' },
+                        { title: 'Clinical Support', text: 'The app combines simple daily guidance with clinician notes so the plan feels supportive, not overwhelming.' },
+                        { title: 'Behavioral Clarity', text: 'A real user app should help the patient know what to eat next and why it matters.' }
+                    ]
+                },
+                planner: {
+                    title: 'Meal Planner Guide',
+                    sub: 'The planner turns medical context and cuisine preference into a structured weekly meal plan the user can understand and act on.',
+                    chips: ['Weekly plan', 'Swaps', 'Macros', 'Meals'],
+                    cards: [
+                        { title: 'Weekly View', text: 'This screen should help the user see the whole week and understand how each day fits the plan.' },
+                        { title: 'Meal Insight', text: 'The planner must explain why a meal exists, not just list calories.' },
+                        { title: 'Practical Adherence', text: 'The prototype should feel like something a patient can actually follow day to day.' }
+                    ]
+                },
+                grocery: {
+                    title: 'Grocery Guide',
+                    sub: 'This flow translates the meal plan into a shopping list so execution is as simple as possible.',
+                    chips: ['Shopping', 'Checklist', 'Order', 'Prep'],
+                    cards: [
+                        { title: 'Execution Layer', text: 'A good grocery screen closes the gap between recommendation and real behavior.' },
+                        { title: 'Priority Items', text: 'The list should show which ingredients matter most for the current plan.' },
+                        { title: 'Convenience', text: 'Ordering and checking off items makes the plan easier to stick to.' }
+                    ]
+                },
+                specialists: {
+                    title: 'Care Team Guide',
+                    sub: 'This area explains how the patient reaches dietitians and clinical support when the automated plan needs a human layer.',
+                    chips: ['Care team', 'Chat', 'Support', 'Guidance'],
+                    cards: [
+                        { title: 'Human Support', text: 'Patients need to see who is available to help and why they might contact them.' },
+                        { title: 'Trust', text: 'The care team view should reinforce that the plan is supported by qualified professionals.' },
+                        { title: 'Intervention', text: 'This is where the patient gets escalated help when diet alone becomes more complex.' }
+                    ]
+                },
+                profile: {
+                    title: 'Profile Guide',
+                    sub: 'The profile stores the user’s medical and cultural context so the rest of the app can personalize around it.',
+                    chips: ['Profile', 'Condition', 'Medication', 'Cuisine'],
+                    cards: [
+                        { title: 'Medical Context', text: 'The app must remember the patient’s chronic condition and medication context.' },
+                        { title: 'Cultural Fit', text: 'Cuisine preference is essential because adherence improves when food still feels familiar.' },
+                        { title: 'Plan Assumptions', text: 'The profile is the source of truth for how recommendations are generated.' }
+                    ]
+                },
+                chat: {
+                    title: 'Consultation Chat Guide',
+                    sub: 'This is the patient-side consultation thread where advice from a dietitian becomes a specific action.',
+                    chips: ['Chat', 'Advice', 'Updates', 'Follow-up'],
+                    cards: [
+                        { title: 'Two-way Support', text: 'The patient can ask questions and the provider can respond with practical guidance.' },
+                        { title: 'Clinical Continuity', text: 'The conversation should connect directly to meal-plan changes and next steps.' },
+                        { title: 'Trust-building', text: 'Chat is one of the clearest ways to make the product feel human and credible.' }
+                    ]
+                }
+            };
+            return screens[state.currentScreen] || screens.home;
+        }
+
+        function renderGuidePanel() {
+            const guide = getGuideContent();
+            if (!guideTitle || !guideSub || !guideChips || !guideCards) return;
+            guideTitle.textContent = guide.title;
+            guideSub.textContent = guide.sub;
+            guideChips.innerHTML = guide.chips.map(chip => `<span class="chip">${chip}</span>`).join('');
+            guideCards.innerHTML = guide.cards.map(card => `
+        <div class="preview-card">
+          <h4>${card.title}</h4>
+          <p>${card.text}</p>
+        </div>
+      `).join('');
+        }
+
+        function renderDietitianPortal() {
+            const profile = state.specialistProfile;
+            const clients = state.specialistClients;
+            const highlightedClient = clients.find(client => client.id === state.specialistSelectedClient) || clients[0];
+            const sections = {
+                dashboard: `
+        <div class="screen">
+          <section class="portal-head pro">
+            <div class="eyebrow" style="color: rgba(255,255,255,0.56);">Dietitian workspace</div>
+            <h1 style="font-size: 34px; line-height: .95;">Consult, manage, adjust.</h1>
+            <p style="margin-top: 10px; color: rgba(255,255,255,0.76); font-size: 14px; line-height: 1.5;">This role prototype covers verification, client management, consultation response, and meal-plan updates from the dietitian side.</p>
+          </section>
+
+          <div class="portal-grid">
+            <div class="panel-card col-2">
+              <div class="tile-label">Verification</div>
+              <div class="tile-value" style="color: var(--success);">Approved</div>
+              <div class="tile-sub">${profile.credentials} cleared by admin review</div>
+            </div>
+            <div class="panel-card col-2">
+              <div class="tile-label">Pending consults</div>
+              <div class="tile-value">${profile.consults}</div>
+              <div class="tile-sub">${profile.responseTarget} response target</div>
+            </div>
+            <div class="panel-card col-4">
+              <div class="tile-label">Registration snapshot</div>
+              <h3 style="font-size: 25px;">${profile.name} is ready to practice in CarePlate.</h3>
+              <p class="tile-sub">The dietitian profile stores specialties, availability, response target, and clinical notes so the app can route consultations correctly.</p>
+              <div style="display:flex; gap:10px; margin-top:14px;">
+                <button class="soft-btn" onclick="openSpecialistAction('profile')">Edit profile</button>
+                <button class="soft-btn" onclick="openSpecialistAction('availability')">Set availability</button>
+              </div>
+            </div>
+            <div class="panel-card col-2">
+              <div class="tile-label">Active clients</div>
+              <div class="tile-value">${profile.clients}</div>
+              <div class="tile-sub">Across diabetes, BP, and weight programs</div>
+            </div>
+            <div class="panel-card col-2">
+              <div class="tile-label">Plan edits today</div>
+              <div class="tile-value">${profile.planEdits}</div>
+              <div class="tile-sub">${profile.highlight}</div>
+            </div>
+            <div class="panel-card col-4">
+              <div class="tile-label">Today's workflow</div>
+              <div class="stack">
+                ${state.specialistActivity.map((item, index) => `
+                  <div class="list-row interactive" onclick="completeSpecialistTask(${index})"><strong>${item.time}</strong><span class="tile-sub">${item.task}</span></div>
+                `).join('')}
+              </div>
+            </div>
+            <div class="panel-card col-4">
+              <div class="tile-label">Case needing attention</div>
+              <h3 style="font-size: 25px;">${highlightedClient.name} - ${highlightedClient.risk}</h3>
+              <p class="tile-sub">${highlightedClient.plan}. ${highlightedClient.nextStep}</p>
+              <div style="display:flex; gap:10px; margin-top:14px;">
+                <button class="soft-btn" onclick="openSpecialistAction('chart', '${highlightedClient.id}')">Open chart</button>
+                <button class="soft-btn" onclick="openSpecialistAction('message', '${highlightedClient.id}')">Send recommendation</button>
+                <button class="soft-btn" onclick="openSpecialistAction('plan', '${highlightedClient.id}')">Adjust meal plan</button>
+              </div>
+            </div>
+            <div class="panel-card col-4">
+              <div class="tile-label">Assigned clients</div>
+              <div class="stack">
+                ${clients.map(client => `
+                  <div class="list-row interactive" onclick="openSpecialistAction('client', '${client.id}')"><strong>${client.name}</strong><span class="tile-sub">${client.summary}</span></div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+      `,
+                clients: `
+        <div class="screen">
+          <section class="hero" style="padding-bottom: 8px;">
+            <div class="eyebrow">Client management</div>
+            <div class="hero-top">
+              <div>
+                <h1>Assigned clients.</h1>
+                <p>Each card explains who the patient is, what risk needs attention, and what intervention the dietitian should take next.</p>
+              </div>
+              <button class="ghost-btn" onclick="openSpecialistAction('client', '${highlightedClient.id}')">Open highlighted case</button>
+            </div>
+          </section>
+          <div class="stack">
+            ${clients.map(client => `
+              <div class="care-card interactive panel-card" onclick="openSpecialistAction('client', '${client.id}')" style="grid-template-columns: 56px 1fr auto;">
+                <div class="care-avatar">${client.name.split(' ').map(part => part[0]).join('').slice(0, 2)}</div>
+                <div class="care-meta">
+                  <h4>${client.name}</h4>
+                  <p>${client.summary}</p>
+                  <p style="margin-top:8px;"><strong>${client.risk}</strong></p>
+                </div>
+                <span class="tiny-pill">Open</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `,
+                consults: `
+        <div class="screen">
+          <section class="hero" style="padding-bottom: 8px;">
+            <div class="eyebrow">Consultations</div>
+            <div class="hero-top">
+              <div>
+                <h1>Respond to patients.</h1>
+                <p>This is the in-app consultation area where a dietitian reviews cases and sends actionable guidance.</p>
+              </div>
+              <button class="ghost-btn" onclick="openSpecialistAction('message', '${highlightedClient.id}')">Reply now</button>
+            </div>
+          </section>
+          <div class="stack">
+            ${clients.map(client => `
+              <div class="list-card interactive" style="border-radius:24px; padding:16px;" onclick="openSpecialistAction('message', '${client.id}')">
+                <div class="tile-label">Consult request</div>
+                <h3 style="font-size: 22px;">${client.name}</h3>
+                <p class="tile-sub">${client.risk}</p>
+                <p class="tile-sub" style="margin-top:10px;">Suggested reply: ${state.specialistDraftMessage}</p>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `,
+                schedule: `
+        <div class="screen">
+          <section class="hero" style="padding-bottom: 8px;">
+            <div class="eyebrow">Schedule</div>
+            <div class="hero-top">
+              <div>
+                <h1>Practice hours.</h1>
+                <p>The dietitian sets availability and sees the follow-up rhythm for ongoing consultations.</p>
+              </div>
+              <button class="ghost-btn" onclick="openSpecialistAction('availability')">Edit hours</button>
+            </div>
+          </section>
+          <div class="planner-card">
+            <div class="tile-label">Current availability</div>
+            <h3 style="font-size:24px;">${profile.availability}</h3>
+            <p class="tile-sub">${profile.responseTarget} response target for active patient requests.</p>
+          </div>
+          <div class="stack" style="margin-top: 14px;">
+            ${state.specialistActivity.map(item => `
+              <div class="list-card" style="border-radius:24px; padding:16px;">
+                <div class="tile-label">${item.time}</div>
+                <p class="tile-sub">${item.task}</p>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `,
+                profile: `
+        <div class="screen">
+          <section class="profile-top">
+            <div class="profile-avatar">${initials(profile.name)}</div>
+            <h2>${profile.name}</h2>
+            <p>${profile.credentials} · ${profile.specialties.join(', ')}</p>
+            <div class="profile-badges">
+              <span class="profile-badge">Approved</span>
+              <span class="profile-badge">${profile.responseTarget}</span>
+              <span class="profile-badge">${profile.clients} active clients</span>
+            </div>
+          </section>
+          <div class="stack" style="margin-top: 16px;">
+            <div class="list-card" style="border-radius:24px; padding:16px;">
+              <div class="tile-label">Specialties</div>
+              <h3 style="font-size: 24px;">${profile.specialties.join(', ')}</h3>
+              <p class="tile-sub">Used to route the right patients to the right dietitian.</p>
+            </div>
+            <div class="list-card" style="border-radius:24px; padding:16px;">
+              <div class="tile-label">Availability</div>
+              <h3 style="font-size: 24px;">${profile.availability}</h3>
+              <p class="tile-sub">${profile.note}</p>
+            </div>
+            <button class="primary-btn" onclick="openSpecialistAction('profile')">Edit professional profile</button>
+          </div>
+        </div>
+      `
+            };
+            return sections[state.specialistScreen] || sections.dashboard;
+        }
+
         function renderAdminPortal() {
-            return `
+            const sections = {
+                overview: `
         <div class="screen">
           <section class="portal-head admin">
             <div class="eyebrow" style="color: rgba(255,255,255,0.56);">System administration</div>
@@ -2443,7 +2924,78 @@
             </div>
           </div>
         </div>
-      `;
+      `,
+                users: `
+        <div class="screen">
+          <section class="hero" style="padding-bottom: 8px;">
+            <div class="eyebrow">User management</div>
+            <div class="hero-top">
+              <div>
+                <h1>Patient accounts.</h1>
+                <p>Admins review account health, support issues, and access status across the patient population.</p>
+              </div>
+            </div>
+          </section>
+          <div class="stack">
+            <div class="list-card" style="border-radius:24px; padding:16px;"><div class="tile-label">Flagged user</div><h3 style="font-size:24px;">Ella B.</h3><p class="tile-sub">Requested plan review and support escalation after sodium alerts.</p></div>
+            <div class="list-card" style="border-radius:24px; padding:16px;"><div class="tile-label">Access issue</div><h3 style="font-size:24px;">2 accounts pending reactivation</h3><p class="tile-sub">Manual review needed after failed profile verification.</p></div>
+          </div>
+        </div>
+      `,
+                specialists: `
+        <div class="screen">
+          <section class="hero" style="padding-bottom: 8px;">
+            <div class="eyebrow">Specialist approvals</div>
+            <div class="hero-top">
+              <div>
+                <h1>Dietitian oversight.</h1>
+                <p>Admins approve providers, check credentials, and ensure clinical coverage across regions and conditions.</p>
+              </div>
+            </div>
+          </section>
+          <div class="stack">
+            <div class="list-card" style="border-radius:24px; padding:16px;"><div class="tile-label">Pending approval</div><h3 style="font-size:24px;">3 applications</h3><p class="tile-sub">Two diabetes specialists and one hypertension-focused dietitian awaiting review.</p></div>
+            <div class="list-card" style="border-radius:24px; padding:16px;"><div class="tile-label">Coverage</div><h3 style="font-size:24px;">8 regions covered</h3><p class="tile-sub">Provider mix is strongest in diabetes and general nutrition support.</p></div>
+          </div>
+        </div>
+      `,
+                content: `
+        <div class="screen">
+          <section class="hero" style="padding-bottom: 8px;">
+            <div class="eyebrow">Content operations</div>
+            <div class="hero-top">
+              <div>
+                <h1>Recipe and rule content.</h1>
+                <p>Admins manage cuisine templates, meal content, and nutrition guidance that powers the recommendation engine.</p>
+              </div>
+            </div>
+          </section>
+          <div class="stack">
+            <div class="list-card" style="border-radius:24px; padding:16px;"><div class="tile-label">Cuisine library</div><h3 style="font-size:24px;">Nigerian and South Asian active</h3><p class="tile-sub">Next expansion candidates are Mediterranean and East Asian templates.</p></div>
+            <div class="list-card" style="border-radius:24px; padding:16px;"><div class="tile-label">Nutrition rules</div><h3 style="font-size:24px;">12 rule sets live</h3><p class="tile-sub">Used to keep meal plans aligned with diabetes, hypertension, and weight-management goals.</p></div>
+          </div>
+        </div>
+      `,
+                settings: `
+        <div class="screen">
+          <section class="hero" style="padding-bottom: 8px;">
+            <div class="eyebrow">Platform settings</div>
+            <div class="hero-top">
+              <div>
+                <h1>Operational controls.</h1>
+                <p>Settings define alerts, policies, integrations, and platform-wide service behavior.</p>
+              </div>
+            </div>
+          </section>
+          <div class="bento">
+            <div class="tile col-2"><div class="tile-label">Alerts</div><div class="tile-value">On</div><div class="tile-sub">High-risk case notifications are active.</div></div>
+            <div class="tile col-2"><div class="tile-label">Integrations</div><div class="tile-value">3</div><div class="tile-sub">Nutrition API, chat service, payment gateway.</div></div>
+            <div class="tile col-4"><div class="tile-label">Policy note</div><div class="tile-sub">Role permissions and moderation rules are controlled at the platform level here.</div></div>
+          </div>
+        </div>
+      `
+            };
+            return sections[state.adminScreen] || sections.overview;
         }
 
         function renderOnboarding() {
@@ -2525,9 +3077,217 @@
       `;
         }
 
+        function getSpecialistClient(clientId) {
+            return state.specialistClients.find(client => client.id === clientId) || state.specialistClients[0];
+        }
+
+        function openModal(content) {
+            mealModal.innerHTML = content;
+            mealModal.classList.add('show');
+        }
+
+        function closeModal() {
+            mealModal.classList.remove('show');
+        }
+
+        function openSpecialistAction(action, clientId = state.specialistSelectedClient) {
+            const client = getSpecialistClient(clientId);
+            state.specialistSelectedClient = client.id;
+
+            if (action === 'profile') {
+                openModal(`
+        <div class="modal-sheet">
+          <div class="sheet-handle"></div>
+          <div class="tile-label">Dietitian profile</div>
+          <h2 style="font-size: 28px; line-height: .95;">Edit professional details</h2>
+          <div class="input-shell" style="margin-top:16px;">
+            <label>Display name</label>
+            <input id="spName" type="text" value="${state.specialistProfile.name}" />
+          </div>
+          <div class="input-shell">
+            <label>Credentials</label>
+            <input id="spCredentials" type="text" value="${state.specialistProfile.credentials}" />
+          </div>
+          <div class="input-shell">
+            <label>Specialties</label>
+            <input id="spSpecialties" type="text" value="${state.specialistProfile.specialties.join(', ')}" />
+          </div>
+          <div style="margin-top: 18px; display:flex; gap:10px;">
+            <button class="primary-btn" onclick="saveSpecialistProfile()">Save profile</button>
+          </div>
+        </div>
+      `);
+                return;
+            }
+
+            if (action === 'availability') {
+                openModal(`
+        <div class="modal-sheet">
+          <div class="sheet-handle"></div>
+          <div class="tile-label">Availability</div>
+          <h2 style="font-size: 28px; line-height: .95;">Set consultation hours</h2>
+          <div class="input-shell" style="margin-top:16px;">
+            <label>Availability window</label>
+            <input id="spAvailability" type="text" value="${state.specialistProfile.availability}" />
+          </div>
+          <div class="input-shell">
+            <label>Response target</label>
+            <input id="spResponseTarget" type="text" value="${state.specialistProfile.responseTarget}" />
+          </div>
+          <div style="margin-top: 18px; display:flex; gap:10px;">
+            <button class="primary-btn" onclick="saveSpecialistAvailability()">Save availability</button>
+          </div>
+        </div>
+      `);
+                return;
+            }
+
+            if (action === 'chart') {
+                openModal(`
+        <div class="modal-sheet">
+          <div class="sheet-handle"></div>
+          <div class="tile-label">Client chart</div>
+          <h2 style="font-size: 28px; line-height: .95;">${client.name}</h2>
+          <div class="list-card" style="border-radius:22px; padding:16px; margin-top:16px;">
+            <div class="tile-label">Clinical summary</div>
+            <p class="tile-sub">${client.summary}</p>
+            <div class="tile-label" style="margin-top:14px;">Risk flag</div>
+            <p class="tile-sub">${client.risk}</p>
+            <div class="tile-label" style="margin-top:14px;">Recommended change</div>
+            <p class="tile-sub">${client.plan}</p>
+          </div>
+          <div style="margin-top: 18px; display:flex; gap:10px;">
+            <button class="primary-btn" onclick="closeModal()">Close chart</button>
+          </div>
+        </div>
+      `);
+                return;
+            }
+
+            if (action === 'message') {
+                openModal(`
+        <div class="modal-sheet">
+          <div class="sheet-handle"></div>
+          <div class="tile-label">Consultation reply</div>
+          <h2 style="font-size: 28px; line-height: .95;">Message ${client.name}</h2>
+          <div class="input-shell" style="margin-top:16px;">
+            <label>Recommendation</label>
+            <textarea id="spMessage" style="min-height: 130px; resize: none;">${state.specialistDraftMessage}</textarea>
+          </div>
+          <div style="margin-top: 18px; display:flex; gap:10px;">
+            <button class="primary-btn" onclick="sendSpecialistRecommendation('${client.id}')">Send recommendation</button>
+          </div>
+        </div>
+      `);
+                return;
+            }
+
+            if (action === 'plan') {
+                openModal(`
+        <div class="modal-sheet">
+          <div class="sheet-handle"></div>
+          <div class="tile-label">Plan adjustment</div>
+          <h2 style="font-size: 28px; line-height: .95;">Adjust ${client.name}'s meal plan</h2>
+          <div class="input-shell" style="margin-top:16px;">
+            <label>Proposed meal change</label>
+            <input id="spPlanUpdate" type="text" value="${client.plan}" />
+          </div>
+          <div class="input-shell">
+            <label>Next step</label>
+            <input id="spNextStep" type="text" value="${client.nextStep}" />
+          </div>
+          <div style="margin-top: 18px; display:flex; gap:10px;">
+            <button class="primary-btn" onclick="saveSpecialistPlan('${client.id}')">Publish update</button>
+          </div>
+        </div>
+      `);
+                return;
+            }
+
+            if (action === 'client') {
+                openModal(`
+        <div class="modal-sheet">
+          <div class="sheet-handle"></div>
+          <div class="tile-label">Assigned client</div>
+          <h2 style="font-size: 28px; line-height: .95;">${client.name}</h2>
+          <p class="tile-sub" style="margin-top:8px;">${client.summary}</p>
+          <div class="metric-grid">
+            <div class="metric"><strong>Risk</strong><span>${client.risk}</span></div>
+            <div class="metric"><strong>Plan</strong><span>Updated</span></div>
+            <div class="metric"><strong>Next</strong><span>Follow-up</span></div>
+          </div>
+          <div class="list-card" style="border-radius:22px; padding:16px;">
+            <div class="tile-label">Current intervention</div>
+            <p class="tile-sub">${client.plan}</p>
+            <div class="tile-label" style="margin-top:14px;">Next action</div>
+            <p class="tile-sub">${client.nextStep}</p>
+          </div>
+          <div style="margin-top: 18px; display:flex; gap:10px;">
+            <button class="soft-btn" onclick="closeModal()">Close</button>
+            <button class="primary-btn" onclick="openSpecialistAction('message', '${client.id}')">Message client</button>
+          </div>
+        </div>
+      `);
+            }
+        }
+
+        function saveSpecialistProfile() {
+            state.specialistProfile.name = document.getElementById('spName')?.value?.trim() || state.specialistProfile.name;
+            state.specialistProfile.credentials = document.getElementById('spCredentials')?.value?.trim() || state.specialistProfile.credentials;
+            const specialties = document.getElementById('spSpecialties')?.value || '';
+            state.specialistProfile.specialties = specialties.split(',').map(item => item.trim()).filter(Boolean);
+            state.specialistProfile.highlight = `Specialties updated: ${state.specialistProfile.specialties.join(', ') || 'General nutrition support'}`;
+            closeModal();
+            render();
+        }
+
+        function saveSpecialistAvailability() {
+            state.specialistProfile.availability = document.getElementById('spAvailability')?.value?.trim() || state.specialistProfile.availability;
+            state.specialistProfile.responseTarget = document.getElementById('spResponseTarget')?.value?.trim() || state.specialistProfile.responseTarget;
+            state.specialistProfile.note = `Availability updated to ${state.specialistProfile.availability}`;
+            closeModal();
+            render();
+        }
+
+        function sendSpecialistRecommendation(clientId) {
+            const client = getSpecialistClient(clientId);
+            const message = document.getElementById('spMessage')?.value?.trim();
+            if (!message) return;
+            state.specialistDraftMessage = message;
+            client.nextStep = 'Recommendation sent to patient';
+            state.specialistProfile.consults = Math.max(0, state.specialistProfile.consults - 1);
+            state.specialistProfile.highlight = `Recommendation sent to ${client.name}`;
+            closeModal();
+            render();
+        }
+
+        function saveSpecialistPlan(clientId) {
+            const client = getSpecialistClient(clientId);
+            const plan = document.getElementById('spPlanUpdate')?.value?.trim();
+            const nextStep = document.getElementById('spNextStep')?.value?.trim();
+            if (plan) client.plan = plan;
+            if (nextStep) client.nextStep = nextStep;
+            state.specialistProfile.planEdits += 1;
+            state.specialistProfile.highlight = `Plan updated for ${client.name}`;
+            closeModal();
+            render();
+        }
+
+        function completeSpecialistTask(index) {
+            const task = state.specialistActivity[index];
+            if (!task) return;
+            state.specialistActivity[index] = {
+                ...task,
+                task: `${task.task} (done)`
+            };
+            state.specialistProfile.highlight = `Completed ${task.time} workflow task`;
+            render();
+        }
+
         function render() {
             renderRoleSwitch();
             renderNav();
+            renderGuidePanel();
 
             if (state.onboardingMode) {
                 app.innerHTML = renderOnboarding();
@@ -2535,7 +3295,7 @@
             }
 
             if (state.role === 'specialist') {
-                app.innerHTML = renderSpecialistPortal();
+                app.innerHTML = renderDietitianPortal();
                 return;
             }
 
@@ -2572,10 +3332,18 @@
             render();
         }
 
+        function navigateRoleScreen(role, screen) {
+            if (role === 'specialist') state.specialistScreen = screen;
+            if (role === 'admin') state.adminScreen = screen;
+            render();
+        }
+
         function switchRole(role) {
             state.role = role;
             state.onboardingMode = false;
-            if (role !== 'user') state.currentScreen = 'home';
+            if (role === 'user') state.currentScreen = 'home';
+            if (role === 'specialist' && !state.specialistScreen) state.specialistScreen = 'dashboard';
+            if (role === 'admin' && !state.adminScreen) state.adminScreen = 'overview';
             render();
         }
 
@@ -2660,11 +3428,11 @@
         }
 
         function closeMealModal() {
-            mealModal.classList.remove('show');
+            closeModal();
         }
 
         mealModal.addEventListener('click', (e) => {
-            if (e.target === mealModal) closeMealModal();
+            if (e.target === mealModal) closeModal();
         });
 
         function toggleGrocery(item) {
@@ -2811,13 +3579,21 @@
         }, 3000);
 
         window.navigateTo = navigateTo;
+        window.navigateRoleScreen = navigateRoleScreen;
         window.switchRole = switchRole;
         window.selectDay = selectDay;
         window.setPlannerView = setPlannerView;
         window.toggleOnboarding = toggleOnboarding;
         window.nextOnboarding = nextOnboarding;
+        window.openSpecialistAction = openSpecialistAction;
+        window.saveSpecialistProfile = saveSpecialistProfile;
+        window.saveSpecialistAvailability = saveSpecialistAvailability;
+        window.sendSpecialistRecommendation = sendSpecialistRecommendation;
+        window.saveSpecialistPlan = saveSpecialistPlan;
+        window.completeSpecialistTask = completeSpecialistTask;
         window.openMeal = openMeal;
         window.closeMealModal = closeMealModal;
+        window.closeModal = closeModal;
         window.toggleGrocery = toggleGrocery;
         window.checkAllGroceries = checkAllGroceries;
         window.simulateOrder = simulateOrder;
